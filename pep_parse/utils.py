@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 def file_output(results):
-    results_dir = Path(__file__) / 'results'
+    results_dir = Path(__file__).parent.parent / 'results'
     results_dir.mkdir(exist_ok=True)
     now = dt.datetime.now()
     now_formatted = now.strftime('%Y-%m-%d_%H-%M-%S')
