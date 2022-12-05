@@ -1,28 +1,32 @@
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+import csv
+import datetime as dt
 
-
-# useful for handling different item types with a single interface
 from collections import defaultdict
-from .utils import file_output
+from pathlib import Path
 
-
-pep_in_each_status = defaultdict(lambda: 0)
-results = [('Статус', 'Количество')]
+BASE_DIR = Path(__file__).parent.parent
 
 
 class PepParsePipeline:
     def open_spider(self, spider):
-        pass
+        self.pep_in_each_status = defaultdict(lambda: 0)
+        self.results = [('Статус', 'Количество')]
 
     def process_item(self, item, spider):
-        pep_in_each_status[item['status']] += 1
+        self.pep_in_each_status[item['status']] += 1
         return item
 
     def close_spider(self, spider):
-        pep_in_each_status['Total'] = sum(pep_in_each_status.values())
-        for k, v in pep_in_each_status.items():
-            results.append((k, v))
-        file_output(results)
+        self.pep_in_each_status['Total'] = sum(
+                                           self.pep_in_each_status.values())
+        for k, v in self.pep_in_each_status.items():
+            self.results.append((k, v))
+        results_dir = BASE_DIR / 'results'
+        results_dir.mkdir(exist_ok=True)
+        now = dt.datetime.now()
+        now_formatted = now.strftime('%Y-%m-%dT%H-%M-%S')
+        file_name = f'status_summary_{now_formatted}.csv'
+        file_path = results_dir / file_name
+        with open(file_path, 'w', encoding='utf-8') as f:
+            writer = csv.writer(f, dialect='unix')
+            writer.writerows(self.results)
