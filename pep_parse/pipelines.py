@@ -18,7 +18,7 @@ class PepParsePipeline:
 
     def close_spider(self, spider):
         self.pep_in_each_status['Total'] = sum(
-                                           self.pep_in_each_status.values())
+            self.pep_in_each_status.values())
         for k, v in self.pep_in_each_status.items():
             self.results.append((k, v))
         results_dir = BASE_DIR / 'results'
